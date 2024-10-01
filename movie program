@@ -1,0 +1,141 @@
+# Parte 1: Pila
+class Pila:
+    def __init__(self):
+        self.items = []
+
+    def apilar(self, item):
+        self.items.append(item)
+
+    def desapilar(self):
+        if not self.esta_vacia():
+            return self.items.pop()
+        return None
+
+    def esta_vacia(self):
+        return len(self.items) == 0
+
+    def cima(self):
+        if not self.esta_vacia():
+            return self.items[-1]
+        return None
+
+# Parte 1: Cola utilizando pilas
+class ColaConPilas:
+    def __init__(self):
+        self.pila_in = Pila()
+        self.pila_out = Pila()
+
+    def enqueue(self, item):
+        self.pila_in.apilar(item)
+
+    def dequeue(self):
+        if self.pila_out.esta_vacia():
+            while not self.pila_in.esta_vacia():
+                self.pila_out.apilar(self.pila_in.desapilar())
+        return self.pila_out.desapilar()
+
+    def esta_vacia(self):
+        return self.pila_in.esta_vacia() and self.pila_out.esta_vacia()
+
+    def tamaño(self):
+        return len(self.pila_in.items) + len(self.pila_out.items)
+
+    def primero(self):
+        if self.pila_out.esta_vacia():
+            while not self.pila_in.esta_vacia():
+                self.pila_out.apilar(self.pila_in.desapilar())
+        return self.pila_out.cima()
+
+# Parte 2: Lista enlazada
+class Nodo:
+    def __init__(self, valor):
+        self.valor = valor
+        self.siguiente = None
+
+class ListaEnlazada:
+    def __init__(self):
+        self.cabeza = None
+        self.final = None
+
+    def agregar(self, valor):
+        nuevo_nodo = Nodo(valor)
+        if not self.cabeza:
+            self.cabeza = nuevo_nodo
+            self.final = nuevo_nodo
+        else:
+            self.final.siguiente = nuevo_nodo
+            self.final = nuevo_nodo
+
+    def mostrar(self):
+        actual = self.cabeza
+        while actual:
+            print(actual.valor, end=" -> ")
+            actual = actual.siguiente
+        print("None")
+
+    def eliminar_primero(self):
+        if self.cabeza:
+            self.cabeza = self.cabeza.siguiente
+            if not self.cabeza:
+                self.final = None  # Actualizar puntero final si la lista queda vacía
+
+
+# Movie Recommendation Program
+class MovieRecommender:
+    def __init__(self):
+        self.movie_catalog = ListaEnlazada()  # Lista de todas las películas
+        self.recommendation_queue = ColaConPilas()  # Cola de recomendaciones
+
+    def add_movie(self, movie):
+        """Agregar una película al catálogo"""
+        self.movie_catalog.agregar(movie)
+        print(f'Película "{movie}" añadida al catálogo.')
+
+    def recommend_movie(self, movie):
+        """Añadir una película a la cola de recomendaciones"""
+        self.recommendation_queue.enqueue(movie)
+        print(f'Película "{movie}" recomendada.')
+
+    def watch_movie(self):
+        """Ver la siguiente película en la cola de recomendaciones"""
+        if not self.recommendation_queue.esta_vacia():
+            movie = self.recommendation_queue.dequeue()
+            print(f'Has visto "{movie}".')
+        else:
+            print("No hay películas para ver.")
+
+    def show_recommendations(self):
+        """Mostrar la siguiente película recomendada"""
+        if not self.recommendation_queue.esta_vacia():
+            print(f'La siguiente película recomendada es: "{self.recommendation_queue.primero()}"')
+        else:
+            print("No hay películas recomendadas.")
+
+    def show_catalog(self):
+        """Mostrar el catálogo completo de películas"""
+        print("Catálogo de películas:")
+        self.movie_catalog.mostrar()
+
+# Ejemplo de uso del sistema de recomendación de películas
+recommender = MovieRecommender()
+
+# Agregar películas al catálogo
+recommender.add_movie("Inception")
+recommender.add_movie("The Matrix")
+recommender.add_movie("Interstellar")
+
+# Mostrar el catálogo
+recommender.show_catalog()  # Salida: Inception -> The Matrix -> Interstellar -> None
+
+# Recomendar películas
+recommender.recommend_movie("Inception")
+recommender.recommend_movie("The Matrix")
+
+# Mostrar la siguiente película recomendada
+recommender.show_recommendations()  # Salida: La siguiente película recomendada es: "Inception"
+
+# Ver películas
+recommender.watch_movie()  # Salida: Has visto "Inception".
+recommender.show_recommendations()  # Salida: La siguiente película recomendada es: "The Matrix"
+recommender.watch_movie()  # Salida: Has visto "The Matrix".
+recommender.watch_movie()  # Salida: No hay películas para ver.
